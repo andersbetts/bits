@@ -38,7 +38,7 @@
                     }
                     @if (await AuthorizationService.AuthorizeAsync(User, "UserRights"))
                     {
-                        <li><a asp-area="" asp-controller="IssueDescriptionItems" asp-action="Index">Structure</a></li>
+                        <li><a asp-area="" asp-controller="IssueDescriptionItems" asp-action="Index" asp-route-id="1">Structure</a></li>
                     }
                     @if (await AuthorizationService.AuthorizeAsync(User, "AdminRights"))
                     {

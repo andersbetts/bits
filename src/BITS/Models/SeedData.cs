@@ -19,8 +19,25 @@ namespace BITS.Models
             {
                 await InitializeRoles(context, serviceProvider);
                 await InitializeUsers(context, serviceProvider);
+                await InitializeIssueDescriptionItems(context, serviceProvider);
             }
 
+        }
+
+        static async Task InitializeIssueDescriptionItems(ApplicationDbContext context, IServiceProvider serviceProvider)
+        {
+            if(context.IssueDescriptionItem.Any())
+            {
+                return;
+            }
+
+            context.IssueDescriptionItem.Add(new IssueDescriptionItem()
+            {
+                Enabled = true,
+                Name = "Root"
+            });
+
+            await context.SaveChangesAsync();
         }
 
         static async Task InitializeRoles(ApplicationDbContext context, IServiceProvider serviceProvider)

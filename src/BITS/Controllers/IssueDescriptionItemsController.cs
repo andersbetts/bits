@@ -22,6 +22,8 @@ namespace BITS.Controllers
         // GET: IssueDescriptionItems
         public async Task<IActionResult> Index(int? id)
         {
+            id = id ?? 1;
+
             var applicationDbContext = _context.IssueDescriptionItem.Include(i => i.Parent);
 
             var idi = from i in _context.IssueDescriptionItem
@@ -83,7 +85,7 @@ namespace BITS.Controllers
             {
                 _context.Add(issueDescriptionItem);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { id = issueDescriptionItem.ID });
             }
             //ViewData["ParentID"] = issueDescriptionItem.ParentID;
             ViewData["ParentID"] = new SelectList(_context.IssueDescriptionItem, "ID", "Name", issueDescriptionItem.ParentID);
@@ -103,6 +105,7 @@ namespace BITS.Controllers
             {
                 return NotFound();
             }
+
             ViewData["ParentID"] = new SelectList(_context.IssueDescriptionItem, "ID", "Name", issueDescriptionItem.ParentID);
             return View(issueDescriptionItem);
         }
@@ -137,7 +140,7 @@ namespace BITS.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", new { id = issueDescriptionItem.ParentID });
             }
             ViewData["ParentID"] = new SelectList(_context.IssueDescriptionItem, "ID", "ID", issueDescriptionItem.ParentID);
             return View(issueDescriptionItem);
@@ -168,7 +171,7 @@ namespace BITS.Controllers
             var issueDescriptionItem = await _context.IssueDescriptionItem.SingleOrDefaultAsync(m => m.ID == id);
             _context.IssueDescriptionItem.Remove(issueDescriptionItem);
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", new { id = issueDescriptionItem.ParentID });
         }
 
         private bool IssueDescriptionItemExists(int id)
