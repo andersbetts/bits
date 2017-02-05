@@ -1,0 +1,60 @@
+@model IEnumerable<BITS.Models.IssueDescriptionItem>
+@{
+    var self = (IssueDescriptionItem)ViewData["Self"];
+    var parent = ((IssueDescriptionItem)ViewData["Self"])?.Parent;
+    ViewData["Title"] = self?.Name ?? "Index";
+}
+
+
+<h2>
+    @if (ViewData["ID"] == null)
+    {    }
+    else if (parent == null)
+    {
+        <a asp-action="Index" asp-route-id="@null">&lt; Root</a><span> |</span>
+    }
+    else 
+    {
+        <a asp-action="Index" asp-route-id="@parent.ID">&lt; @parent.Name</a><span> |</span>
+    }
+    @ViewData["Title"]</h2>
+
+<p>
+    <a asp-action="Create" asp-route-id="@ViewData["ID"]">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Enabled)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Enabled)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                <a asp-action="Index" asp-route-id="@item.ID">Enter</a> |
+                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

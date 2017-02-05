@@ -49,6 +49,18 @@ namespace BITS
 
             services.AddMvc();
 
+            services.AddAuthorization(options => {
+                options.AddPolicy("CMGRights", p => p.RequireRole("CMG"));
+                options.AddPolicy("AdminRights", p => p.RequireRole("CMG", "Admin"));
+                options.AddPolicy("UserRights", p => p.RequireRole("CMG", "Admin", "User"));
+                options.AddPolicy("LoggedInRights", p => p.RequireRole("CMG", "Admin", "User", "Customer"));
+            });
+
+            services.Configure<IdentityOptions>(options => {
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.MaxFailedAccessAttempts = 4;
+            });
+
             // Add application services.
             services.AddTransient<IEmailSender, AuthMessageSender>();
             services.AddTransient<ISmsSender, AuthMessageSender>();
@@ -83,6 +95,8 @@ namespace BITS
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            SeedData.Initialize(app.ApplicationServices);
         }
     }
 }

@@ -8,9 +8,10 @@ using BITS.Data;
 namespace BITS.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170204154507_issuedescriptionitems")]
+    partial class issuedescriptionitems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.1")
@@ -72,13 +73,13 @@ namespace BITS.Data.Migrations
 
                     b.Property<bool>("Enabled");
 
-                    b.Property<string>("Name");
+                    b.Property<int?>("IssueDescriptionItemID");
 
-                    b.Property<int?>("ParentID");
+                    b.Property<string>("Name");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("ParentID");
+                    b.HasIndex("IssueDescriptionItemID");
 
                     b.ToTable("IssueDescriptionItem");
                 });
@@ -192,9 +193,9 @@ namespace BITS.Data.Migrations
 
             modelBuilder.Entity("BITS.Models.IssueDescriptionItem", b =>
                 {
-                    b.HasOne("BITS.Models.IssueDescriptionItem", "Parent")
+                    b.HasOne("BITS.Models.IssueDescriptionItem")
                         .WithMany("Children")
-                        .HasForeignKey("ParentID");
+                        .HasForeignKey("IssueDescriptionItemID");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>

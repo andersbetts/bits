@@ -8,9 +8,10 @@ using BITS.Data;
 namespace BITS.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20170204153301_IssueDescriptionItem")]
+    partial class IssueDescriptionItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.0.1")
@@ -63,24 +64,6 @@ namespace BITS.Data.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
-                });
-
-            modelBuilder.Entity("BITS.Models.IssueDescriptionItem", b =>
-                {
-                    b.Property<int>("ID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("Enabled");
-
-                    b.Property<string>("Name");
-
-                    b.Property<int?>("ParentID");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("ParentID");
-
-                    b.ToTable("IssueDescriptionItem");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole", b =>
@@ -188,13 +171,6 @@ namespace BITS.Data.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
-                });
-
-            modelBuilder.Entity("BITS.Models.IssueDescriptionItem", b =>
-                {
-                    b.HasOne("BITS.Models.IssueDescriptionItem", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentID");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRoleClaim<string>", b =>
