@@ -24,7 +24,13 @@ namespace BITS.Controllers
         // GET: ApplicationUsers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ApplicationUser.ToListAsync());
+            var users = from u in _context.ApplicationUser
+                        select u;
+
+            users = users.Include(u => u.Roles);
+            var usersList = await users.ToListAsync();
+
+            return View(usersList);
         }
 
         // GET: ApplicationUsers/Details/5
@@ -79,6 +85,9 @@ namespace BITS.Controllers
             {
                 return NotFound();
             }
+
+            ViewData["Roles"] = await _context.Roles.ToListAsync();
+
             return View(applicationUser);
         }
 

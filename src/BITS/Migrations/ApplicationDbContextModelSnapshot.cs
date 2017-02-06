@@ -65,6 +65,116 @@ namespace BITS.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("BITS.Models.Country", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Enabled");
+
+                    b.Property<string>("ISOAlpha3")
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.Property<string>("Name")
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.Property<string>("PhonePrefix")
+                        .HasAnnotation("MaxLength", 10);
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Country");
+                });
+
+            modelBuilder.Entity("BITS.Models.Currency", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Acronym")
+                        .HasAnnotation("MaxLength", 10);
+
+                    b.Property<bool>("Enabled");
+
+                    b.Property<string>("Name")
+                        .HasAnnotation("MaxLength", 32);
+
+                    b.Property<string>("Symbol")
+                        .HasAnnotation("MaxLength", 5);
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Currency");
+                });
+
+            modelBuilder.Entity("BITS.Models.Customer", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Address_0")
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.Property<string>("Address_1")
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.Property<string>("Address_2")
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.Property<string>("City")
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.Property<int>("CountryID");
+
+                    b.Property<string>("EmailAddress");
+
+                    b.Property<bool>("Enabled");
+
+                    b.Property<string>("IDNumber");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasAnnotation("MaxLength", 60);
+
+                    b.Property<string>("Zip");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("CountryID");
+
+                    b.ToTable("Customer");
+                });
+
+            modelBuilder.Entity("BITS.Models.CustomerContact", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CustomerID");
+
+                    b.Property<string>("EmailAddress_1");
+
+                    b.Property<string>("EmailAddress_2");
+
+                    b.Property<bool>("Enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.Property<string>("PhoneNumber_1")
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.Property<string>("PhoneNumber_2")
+                        .HasAnnotation("MaxLength", 100);
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("CustomerID");
+
+                    b.ToTable("CustomerContact");
+                });
+
             modelBuilder.Entity("BITS.Models.IssueDescriptionItem", b =>
                 {
                     b.Property<int>("ID")
@@ -72,7 +182,8 @@ namespace BITS.Migrations
 
                     b.Property<bool>("Enabled");
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<int?>("ParentID");
 
@@ -81,6 +192,22 @@ namespace BITS.Migrations
                     b.HasIndex("ParentID");
 
                     b.ToTable("IssueDescriptionItem");
+                });
+
+            modelBuilder.Entity("BITS.Models.Tag", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("Enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasAnnotation("MaxLength", 32);
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Tag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityRole", b =>
@@ -188,6 +315,22 @@ namespace BITS.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens");
+                });
+
+            modelBuilder.Entity("BITS.Models.Customer", b =>
+                {
+                    b.HasOne("BITS.Models.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryID")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("BITS.Models.CustomerContact", b =>
+                {
+                    b.HasOne("BITS.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("BITS.Models.IssueDescriptionItem", b =>

@@ -32,5 +32,15 @@ namespace BITS.Data
         public DbSet<ApplicationUser> ApplicationUser { get; set; }
 
         public DbSet<IssueDescriptionItem> IssueDescriptionItem { get; set; }
+
+        public DbSet<Country> Country { get; set; }
+
+        public DbSet<Customer> Customer { get; set; }
+
+        public DbSet<CustomerContact> CustomerContact { get; set; }
+
+        public DbSet<Currency> Currency { get; set; }
+
+        public DbSet<Tag> Tag { get; set; }
     }
 }

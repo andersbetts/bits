@@ -15,10 +15,11 @@ namespace BITS.Models
         public int? ParentID { get; set; }
         public virtual IssueDescriptionItem Parent { get; set; }
 
+        [Required]
         [RegularExpression(@"^[a-zA-Z0-9''-' \s]*$")]
         public string  Name { get; set; }
 
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; } = true;
 
         public virtual ICollection<IssueDescriptionItem> Children { get; set; }
     }

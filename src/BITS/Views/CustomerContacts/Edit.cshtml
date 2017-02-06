@@ -1,0 +1,80 @@
+@model BITS.Models.CustomerContact
+
+@{
+    ViewData["Title"] = "Edit";
+    var customer = ViewData["Customer"] as Customer;
+}
+
+<h2>Edit</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <h4>CustomerContact</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="ID" />
+        <div class="form-group">
+            <label asp-for="CustomerID" class="control-label col-md-2"></label>
+            <div class="col-md-10">
+                <select asp-for="CustomerID" class="form-control" asp-items="ViewBag.CustomerID"></select>
+                <span asp-validation-for="CustomerID" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="EmailAddress_1" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="EmailAddress_1" class="form-control" />
+                <span asp-validation-for="EmailAddress_1" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="EmailAddress_2" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="EmailAddress_2" class="form-control" />
+                <span asp-validation-for="EmailAddress_2" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <div class="checkbox">
+                    <input asp-for="Enabled" />
+                    <label asp-for="Enabled"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PhoneNumber_1" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PhoneNumber_1" class="form-control" />
+                <span asp-validation-for="PhoneNumber_1" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PhoneNumber_2" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="PhoneNumber_2" class="form-control" />
+                <span asp-validation-for="PhoneNumber_2" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index" asp-route-id="@customer.ID">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
