@@ -44,7 +44,7 @@
                     }
                     @if (await AuthorizationService.AuthorizeAsync(User, "AdminRights"))
                     {
-                        <li><a asp-area="" asp-controller="ApplicationUsers" asp-action="Index">Users</a></li>
+                        <li><a asp-area="" asp-controller="Account" asp-action="Index">Accounts</a></li>
                         <li><a asp-area="" asp-controller="Countries" asp-action="Index">Countries</a></li>
                         <li><a asp-area="" asp-controller="Currencies" asp-action="Index">Currencies</a></li>
                     }

@@ -11,30 +11,132 @@ using Microsoft.Extensions.Logging;
 using BITS.Models;
 using BITS.Models.AccountViewModels;
 using BITS.Services;
+using BITS.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace BITS.Controllers
 {
     [Authorize]
     public class AccountController : Controller
     {
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
         private readonly ILogger _logger;
 
         public AccountController(
+            ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender,
             ISmsSender smsSender,
             ILoggerFactory loggerFactory)
         {
+            _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
             _logger = loggerFactory.CreateLogger<AccountController>();
+        }
+
+        // GET: ApplicationUsers
+        [Authorize(Roles = "CMG, Admin")]
+        public async Task<IActionResult> Index()
+        {
+            var users = (from u in _context.ApplicationUser
+                        orderby u.UserName
+                        select u)
+                        .Include(u => u.Roles);
+
+            ViewData["Roles"] = await _context.Roles.ToListAsync();
+
+            return View(await users.ToListAsync());
+        }
+
+        // GET: ApplicationUsers/Edit/5
+        [Authorize(Roles = "CMG, Admin")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var applicationUser = await _context.ApplicationUser
+                .Include(m => m.Roles)/*.ThenInclude(r=>r.RoleId)*/
+                .SingleOrDefaultAsync(m => m.Id == id);
+            if (applicationUser == null)
+            {
+                return NotFound();
+            }
+
+            PopulateApplicationUserRolesData(applicationUser);
+
+            return View(applicationUser);
+        }
+
+        // POST: ApplicationUsers/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "CMG, Admin")]
+        public async Task<IActionResult> Edit(string id, string[] selectedRoles, [Bind("Id,AccessFailedCount,ConcurrencyStamp,Email,EmailConfirmed,LockoutEnabled,LockoutEnd,NormalizedEmail,NormalizedUserName,PasswordHash,PhoneNumber,PhoneNumberConfirmed,SecurityStamp,TwoFactorEnabled,UserName,Enabled")] ApplicationUser applicationUser)
+        {
+            if (id != applicationUser.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var userToUpdate = await _userManager.FindByIdAsync(id);
+
+                    if(userToUpdate.UserName != applicationUser.UserName)
+                    {
+                        userToUpdate.UserName = applicationUser.UserName;
+                        await _userManager.UpdateNormalizedUserNameAsync(userToUpdate);
+                    }
+                    
+
+                    userToUpdate.Enabled = applicationUser.Enabled;
+                    userToUpdate.LockoutEnabled = applicationUser.LockoutEnabled;
+                    userToUpdate.LockoutEnd = applicationUser.LockoutEnd;
+
+                    if(userToUpdate.Email != applicationUser.Email)
+                    {
+                        var token = await _userManager.GenerateChangeEmailTokenAsync(userToUpdate, applicationUser.Email);
+                        var result = await _userManager.ChangeEmailAsync(userToUpdate, applicationUser.Email, token);
+                        await _userManager.UpdateNormalizedEmailAsync(userToUpdate);
+                    }
+
+                    _context.Update(userToUpdate);
+                    await _context.SaveChangesAsync();
+                    await UpdateApplicationUserRoles(userToUpdate, selectedRoles);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ApplicationUserExists(applicationUser.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("Index");
+            }
+            return View(applicationUser);
         }
 
         //
@@ -57,9 +159,17 @@ namespace BITS.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                
+                if(user == null || user.Enabled == false)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return View(model);
+                }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
+                var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
@@ -105,7 +215,7 @@ namespace BITS.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Name, Email = model.Email };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -117,7 +227,7 @@ namespace BITS.Controllers
                     //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
                     //await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
-                    return RedirectToAction("Index", "ApplicationUsers");
+                    return RedirectToAction("Index");
                     //return RedirectToLocal(returnUrl);
                 }
                 AddErrors(result);
@@ -435,6 +545,70 @@ namespace BITS.Controllers
                 ModelState.AddModelError(string.Empty, "Invalid code.");
                 return View(model);
             }
+        }
+
+        private bool ApplicationUserExists(string id)
+        {
+            return _context.ApplicationUser.Any(e => e.Id == id);
+        }
+
+        private void PopulateApplicationUserRolesData(ApplicationUser applicationUser)
+        {
+            var allRoles = _context.Roles;
+            var applicationUserRoles = new HashSet<string>(applicationUser.Roles.Select(r => r.RoleId));
+            var viewModel = new List<Models.AccountViewModels.ApplicationUserRolesViewModel>();
+            foreach (var role in allRoles)
+            {
+                viewModel.Add(new Models.AccountViewModels.ApplicationUserRolesViewModel()
+                {
+                    RoleId = role.Id,
+                    Name = role.Name,
+                    Assigned = applicationUserRoles.Contains(role.Id)
+                });
+            }
+            ViewData["Roles"] = viewModel;
+        }
+
+        async Task UpdateApplicationUserRoles(ApplicationUser applicationUser, string[] selectedRolesIds)
+        {
+
+            var rolesToRemove = await (from r in _context.Roles
+                                where !selectedRolesIds.Contains(r.Id)
+                                select r).ToListAsync();
+
+            //Remove roles not contained in selectedRoles
+            foreach (var role in rolesToRemove)
+            {
+                //var role = _context.Roles.First(r => r.Id == role.);
+                //not in selected
+                if (await _userManager.IsInRoleAsync(applicationUser, role.NormalizedName))
+                {
+                    var result = await _userManager.RemoveFromRoleAsync(applicationUser, role.NormalizedName);
+                    var a = 2;
+                }
+            }
+
+            var rolesToAdd = await (from r in _context.Roles
+                             where selectedRolesIds.Contains(r.Id)
+                             select r).ToListAsync();
+
+            //Add roles not already in
+            foreach(var role in rolesToAdd)
+            {
+                if(! await _userManager.IsInRoleAsync(applicationUser, role.NormalizedName))
+                {
+                    var result = await _userManager.AddToRoleAsync(applicationUser, role.NormalizedName);
+                }
+            }
+
+            //foreach (var roleId in selectedRolesIds)
+            //{
+            //    var role = _context.Roles.First(r => r.Id == roleId);
+            //    result = await _userManager.AddToRoleAsync(applicationUser, role.NormalizedName);
+            //}
+
+
+            //await _context.SaveChangesAsync();
         }
 
         #region Helpers

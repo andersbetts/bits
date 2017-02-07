@@ -253,6 +253,8 @@ E:\VSProjects\bits\src\BITS\Migrations\20170206102512_currencySymbol.cs
 E:\VSProjects\bits\src\BITS\Migrations\20170206102512_currencySymbol.Designer.cs
 E:\VSProjects\bits\src\BITS\Migrations\20170206113911_tags.cs
 E:\VSProjects\bits\src\BITS\Migrations\20170206113911_tags.Designer.cs
+E:\VSProjects\bits\src\BITS\Migrations\20170207114846_applicationUserEnabled.cs
+E:\VSProjects\bits\src\BITS\Migrations\20170207114846_applicationUserEnabled.Designer.cs
 E:\VSProjects\bits\src\BITS\Migrations\ApplicationDbContextModelSnapshot.cs
 E:\VSProjects\bits\src\BITS\Models\ApplicationUser.cs
 E:\VSProjects\bits\src\BITS\Models\Country.cs
@@ -262,6 +264,7 @@ E:\VSProjects\bits\src\BITS\Models\CustomerContact.cs
 E:\VSProjects\bits\src\BITS\Models\IssueDescriptionItem.cs
 E:\VSProjects\bits\src\BITS\Models\SeedData.cs
 E:\VSProjects\bits\src\BITS\Models\Tag.cs
+E:\VSProjects\bits\src\BITS\Models\AccountViewModels\ApplicationUserRolesViewModel.cs
 E:\VSProjects\bits\src\BITS\Models\AccountViewModels\ExternalLoginConfirmationViewModel.cs
 E:\VSProjects\bits\src\BITS\Models\AccountViewModels\ForgotPasswordViewModel.cs
 E:\VSProjects\bits\src\BITS\Models\AccountViewModels\LoginViewModel.cs

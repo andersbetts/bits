@@ -44,14 +44,8 @@ namespace BITS.Models
         {
             var changes = false;
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            List<IdentityRole> roles = new List<IdentityRole>() {
-            new IdentityRole() { Name = "CMG", NormalizedName = "CMG"},
-            new IdentityRole() { Name = "Admin", NormalizedName = "ADMINISTRATOR"},
-            new IdentityRole() { Name = "User", NormalizedName = "USER"},
-            new IdentityRole() { Name = "Customer", NormalizedName = "CUSTOMER"},
-        };
 
-            foreach (var role in roles)
+            foreach (var role in Roles.AllRoles)
             {
                 if (!await roleManager.RoleExistsAsync(role.NormalizedName))
                 {
@@ -105,10 +99,10 @@ namespace BITS.Models
             await userManager.CreateAsync(user, "Bits123!");
             await userManager.CreateAsync(customer, "Bits123!");
 
-            var result = await userManager.AddToRoleAsync(cmg, "CMG");
-            result = await userManager.AddToRoleAsync(admin, "ADMINISTRATOR");
-            result = await userManager.AddToRoleAsync(user, "USER");
-            result = await userManager.AddToRoleAsync(customer, "CUSTOMER");
+            var result = await userManager.AddToRoleAsync(cmg, Roles.CMG.NormalizedName);
+            result = await userManager.AddToRoleAsync(admin, Roles.Admin.NormalizedName);
+            result = await userManager.AddToRoleAsync(user, Roles.User.NormalizedName);
+            result = await userManager.AddToRoleAsync(customer, Roles.Customer.NormalizedName);
 
             await context.SaveChangesAsync();
 
