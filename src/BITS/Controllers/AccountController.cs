@@ -50,7 +50,7 @@ namespace BITS.Controllers
         [Authorize(Roles = "CMG, Admin")]
         public async Task<IActionResult> Index()
         {
-            var users = (from u in _context.ApplicationUser
+            var users = (from u in _context.ApplicationUser 
                         orderby u.UserName
                         select u)
                         .Include(u => u.Roles);
